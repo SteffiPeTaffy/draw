@@ -38,82 +38,34 @@
     canvas {
         margin-top: 20px;
         outline: white 3px solid;
-        width:160mm; 
-        height:160mm; 
-        image-rendering: -moz-crisp-edges; 
-        image-rendering: pixelated; 
-        margin-bottom: 10px; 
-        border:1px solid black;
+        width: 160mm;
+        height: 160mm;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
+        margin-bottom: 10px;
+        border: 1px solid black;
     }
 
     form {
         margin-top: 30px;
     }
-
 </style>
 
-<body>
-    <h1>Lieblingswelt</h1>
-    <h2>LED ART MAKER</h2>
-    <canvas id="canvas"
-        width="16" height="16">
-    </canvas>
+<script>
+    const draw_topic = 'lieblingswelt/draw';
+    const connect_topic = 'lieblingswelt/draw/connect';
+    var canvas, context, client;
 
-    <form>
-        <label for="draw_color">Choose color: </label>
-        <input type="color" id="draw_color" value="#FFFFFF">
-    </form>
-
-    <script>
-        const draw_topic = 'lieblingswelt/draw';
-        const connect_topic = 'lieblingswelt/draw/connect';
+    function init() {
         client = new Paho.MQTT.Client('wss://broker.emqx.io:8084/mqtt', Math.random().toString(36).substring(20));
 
-        var canvas = document.getElementById("canvas");
-        var context = canvas.getContext("2d");
-
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
 
         client.onConnectionLost = onConnectionLost;
         client.onMessageArrived = onMessageArrived;
 
         client.connect({ onSuccess: onConnect });
-
-
-        function onConnect() {
-            // Once a connection has been made, make a subscription and send a message.
-            console.log("onConnect");
-            client.subscribe(draw_topic);
-
-            message = new Paho.MQTT.Message("1");
-            message.destinationName = connect_topic;
-            client.send(message);
-        }
-
-        // called when the client loses its connection
-        function onConnectionLost(responseObject) {
-            if (responseObject.errorCode !== 0) {
-                console.log("onConnectionLost:" + responseObject.errorMessage);
-            }
-            // Reconnect
-            console.log("Reconnecting");
-            client.connect({ onSuccess: onConnect });
-        }
-
-        // called when a message arrives
-        function onMessageArrived(message) {
-            console.log("onMessageArrived:" + toHexString(message.payloadBytes));
-            var x = message.payloadBytes[0];
-            var y = message.payloadBytes[1];
-
-            context.fillStyle = '#' + toHexString(message.payloadBytes.slice(2, 5));
-            context.fillRect(x, y, 1, 1);
-        }
-
-        function toHexString(byteArray) {
-            return Array.from(byteArray, function (byte) {
-                return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-            }).join('')
-        }
 
         var pixel_width = context.canvas.clientWidth / canvas.width;
         var pixel_height = context.canvas.clientHeight / canvas.height;
@@ -130,18 +82,72 @@
 
             context.fillStyle = document.getElementById("draw_color").value;
             context.fillRect(x, y, 1, 1);
-            var payload = new Uint8Array(5);
-            payload[0] = x;
-            payload[1] = y;
-            payload[2] = Number('0x' + context.fillStyle.substr(1, 2)).toString(10);
-            payload[3] = Number('0x' + context.fillStyle.substr(3, 2)).toString(10);
-            payload[4] = Number('0x' + context.fillStyle.substr(5, 2)).toString(10);
-            message = new Paho.MQTT.Message(payload);
-            message.destinationName = draw_topic;
-            client.send(message);
-        }, true);
 
-    </script>
+            sendMessage(x, y, context.fillStyle)
+        }, true);
+    }
+
+    function onConnect() {
+        // Once a connection has been made, make a subscription and send a message.
+        console.log("onConnect");
+        client.subscribe(draw_topic);
+
+        message = new Paho.MQTT.Message("1");
+        message.destinationName = connect_topic;
+        client.send(message);
+    }
+
+    // called when the client loses its connection
+    function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+            console.log("onConnectionLost:" + responseObject.errorMessage);
+        }
+        // Reconnect
+        console.log("Reconnecting");
+        client.connect({ onSuccess: onConnect });
+    }
+
+    // called when a message arrives
+    function onMessageArrived(message) {
+        console.log("onMessageArrived:" + toHexString(message.payloadBytes));
+        var x = message.payloadBytes[0];
+        var y = message.payloadBytes[1];
+
+        context.fillStyle = '#' + toHexString(message.payloadBytes.slice(2, 5));
+        context.fillRect(x, y, 1, 1);
+    }
+
+    function toHexString(byteArray) {
+        return Array.from(byteArray, function (byte) {
+            return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+        }).join('')
+    }
+
+    function sendMessage(x, y, color) {
+        var payload = new Uint8Array(5);
+        payload[0] = x;
+        payload[1] = y;
+        payload[2] = Number('0x' + color.substr(1, 2)).toString(10);
+        payload[3] = Number('0x' + color.substr(3, 2)).toString(10);
+        payload[4] = Number('0x' + color.substr(5, 2)).toString(10);
+        message = new Paho.MQTT.Message(payload);
+        message.destinationName = draw_topic;
+        client.send(message);
+    }
+
+</script>
+
+<body onload="init()">
+    <h1>Lieblingswelt</h1>
+    <h2>LED ART MAKER</h2>
+
+    <canvas id="canvas" width="16" height="16">
+    </canvas>
+
+    <form>
+        <label for="draw_color">Choose color: </label>
+        <input type="color" id="draw_color" value="#FFFFFF">
+    </form>
 </body>
 
 </html>
