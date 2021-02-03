@@ -4,12 +4,12 @@
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 
-#define PIN 16
+#define PIN 4
 
 const char* MQTT_SERVER = "broker.emqx.io";
 const uint16_t MQTT_PORT = 1883;
 
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(16, 16, PIN,
   NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +
   NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
   NEO_GRB            + NEO_KHZ800);
@@ -18,8 +18,8 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 String clientId;
 
-const char DRAW_TOPIC[] = "nitek/draw";
-const char CONNECT_TOPIC[] = "nitek/draw/connect";
+const char DRAW_TOPIC[] = "lieblingswelt/draw";
+const char CONNECT_TOPIC[] = "lieblingswelt/draw/connect";
 
 uint8_t data[16][16][3] = {0};
 
