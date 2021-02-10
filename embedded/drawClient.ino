@@ -48,7 +48,7 @@ void setup() {
   Serial.begin(115200);
 
   matrix.begin();
-  matrix.setBrightness(20);
+  matrix.setBrightness(30);
   matrix.setRotation(1);
   matrix.fill(0);
   matrix.show();
