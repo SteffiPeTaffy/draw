@@ -9,13 +9,13 @@ on:
       - '.github/workflows/web.yml'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.10.9
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "led-art-box"
-          heroku_email: "stefanie.grewenig@googlemail.com"
-          remote_branch: master
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./web
