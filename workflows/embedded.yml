@@ -1,6 +1,8 @@
 name: PlatformIO CI
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
   paths:
     - 'embedded/drawClient.ino'
 
