@@ -13,20 +13,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./web
-
-    deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@master
-
-      - name: UploadS3
+      - name: Upload to S3
         uses: zdurham/s3-upload-github-action@master
         with:
           args: --acl public-read
