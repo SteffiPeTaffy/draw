@@ -1,10 +1,10 @@
-name: PlatformIO CI
+name: Embedded CI
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'embedded/drawClient.ino'
+    - 'embedded/**'
 
 jobs:
   build:
@@ -33,7 +33,5 @@ jobs:
         pip install --upgrade platformio
     - name: Run PlatformIO
       run: pio run
-    - name: Upload latest release
-      uses: actions/upload-artifact@v2
-      with:
-        path: releases/latest-firmware.bin
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v2
