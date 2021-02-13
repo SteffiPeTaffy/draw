@@ -3,7 +3,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
-#include <AsyncElegantOTA.h>
+#include <HTTPUpdate.h>
 
 #define PIN 4
 
@@ -15,16 +15,15 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(16, 16, PIN,
   NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
   NEO_GRB            + NEO_KHZ800);
 
-WiFiClient espClient;
-PubSubClient client(espClient);
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
 String clientId;
 
 const char DRAW_TOPIC[] = "lieblingswelt/draw";
 const char CONNECT_TOPIC[] = "lieblingswelt/draw/connect";
+const char UPDATE_TOPIC[] = "lieblingswelt/draw/update";
 
 uint8_t data[16][16][3] = {0};
-
-AsyncWebServer server(80);
 
 void startWifi() {
   Serial.println("Connecting Wifi");
@@ -58,18 +57,11 @@ void setup() {
 
   startWifi();
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Moin! I am your LED Art Box.");
-  });
-  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
-  server.begin();
-  Serial.println("HTTP server started");
-
   String clientId = "ESP32Client-";
   clientId += String(random(0xffff), HEX);
 
-  client.setServer(MQTT_SERVER, MQTT_PORT);
-  client.setCallback(callback);
+  mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+  mqttClient.setCallback(callback);
 }
 
 void sync() {
@@ -86,7 +78,7 @@ void sync() {
       payload[2] = data[x][y][0];
       payload[3] = data[x][y][1];
       payload[4] = data[x][y][2];
-      client.publish(DRAW_TOPIC, payload, sizeof(payload));
+      mqttClient.publish(DRAW_TOPIC, payload, sizeof(payload));
       Serial.print(",");
     }
   }
@@ -121,6 +113,8 @@ void callback(char* topic, byte* message, unsigned int length) {
     matrix.show();
   } else if (strcmp(topic, CONNECT_TOPIC) == 0) {
     sync();
+  } else if (strcmp(topic, UPDATE_TOPIC) == 0) {
+    update();
   } else {
     Serial.print("Wrong topic?! ");
     Serial.println(topic);
@@ -128,26 +122,43 @@ void callback(char* topic, byte* message, unsigned int length) {
 }
 
 void reconnect() {
-  while (!client.connected()) {
+  while (!mqttClient.connected()) {
     Serial.print("Attempting MQTT connection...");
-    if (client.connect(clientId.c_str())) {
+    if (mqttClient.connect(clientId.c_str())) {
       Serial.println("connected");
-      client.subscribe(DRAW_TOPIC);
-      client.subscribe(CONNECT_TOPIC);
+      mqttClient.subscribe(DRAW_TOPIC);
+      mqttClient.subscribe(CONNECT_TOPIC);
       sync();
     } else {
       Serial.print("failed, rc=");
-      Serial.print(client.state());
+      Serial.print(mqttClient.state());
       Serial.println(" try again in 5 seconds");
       delay(5000);
     }
   }
 }
 
+void update() {
+    t_httpUpdate_return ret = httpUpdate.update(wifiClient, "https://github.com/SteffiPeTaffy/draw/releases/latest/download/firmware.bin");
+
+    switch (ret) {
+      case HTTP_UPDATE_FAILED:
+        Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+        break;
+
+      case HTTP_UPDATE_NO_UPDATES:
+        Serial.println("HTTP_UPDATE_NO_UPDATES");
+        break;
+
+      case HTTP_UPDATE_OK:
+        Serial.println("HTTP_UPDATE_OK");
+        break;
+    }
+}
+
 void loop() {
-  if (!client.connected()) {
+  if (!mqttClient.connected()) {
     reconnect();
   }
-  AsyncElegantOTA.loop();
-  client.loop();
+  mqttClient.loop();
 }
