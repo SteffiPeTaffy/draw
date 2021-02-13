@@ -18,3 +18,4 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "led-art-box"
           heroku_email: "stefanie.grewenig@googlemail.com"
+          remote_branch: master
