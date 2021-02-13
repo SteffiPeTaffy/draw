@@ -3,8 +3,8 @@ name: PlatformIO CI
 on:
   push:
     branches: [ main ]
-  paths:
-    - 'embedded/drawClient.ino'
+    paths:
+      - 'embedded/drawClient.ino'
 
 jobs:
   build:
