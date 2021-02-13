@@ -114,7 +114,7 @@ void callback(char* topic, byte* message, unsigned int length) {
   } else if (strcmp(topic, CONNECT_TOPIC) == 0) {
     sync();
   } else if (strcmp(topic, UPDATE_TOPIC) == 0) {
-    update();
+    update(message);
   } else {
     Serial.print("Wrong topic?! ");
     Serial.println(topic);
@@ -138,7 +138,8 @@ void reconnect() {
   }
 }
 
-void update() {
+void update(byte* message) {
+    Serial.printf("update to: %s\n", message);
     t_httpUpdate_return ret = httpUpdate.update(wifiClient, "https://github.com/SteffiPeTaffy/draw/releases/latest/download/firmware.bin");
 
     switch (ret) {

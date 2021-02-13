@@ -57,3 +57,12 @@ jobs:
         asset_path: ./.pio/build/esp32dev/firmware.bin
         asset_name: firmware.bin
         asset_content_type: application/octet-stream
+    - name: Publish commit hash to mqtt broker
+    uses: juhrlass/mqtt-action@master
+    with:
+      protocol: mqtt
+      host: broker.emqx.io
+      port: 1883
+      topic: "lieblingswelt/draw/update"
+      message: ${{ github.ref }}
+      username: 'mqtt'
