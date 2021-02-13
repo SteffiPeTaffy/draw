@@ -20,8 +20,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./web
 
-    deployS3:
+    deploy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@master
 
