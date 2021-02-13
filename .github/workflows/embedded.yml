@@ -67,5 +67,5 @@ jobs:
         host: broker.emqx.io
         port: 1883
         topic: "lieblingswelt/draw/update"
-        message: ${{ github.ref }}
+        message: ${{ steps.tag_version.outputs.new_tag }}
         username: 'mqtt'
