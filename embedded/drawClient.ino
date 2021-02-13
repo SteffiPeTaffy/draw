@@ -59,7 +59,7 @@ void setup() {
   startWifi();
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Moin! I am your LED Art Box.");
+    request->send(200, "text/plain", "Moin! I am LED Art Box.");
   });
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
