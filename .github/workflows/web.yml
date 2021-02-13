@@ -19,3 +19,20 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./web
+
+    deployS3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: UploadS3
+        uses: zdurham/s3-upload-github-action@master
+        with:
+          args: --acl public-read
+        env:
+          FILE: ./web/index.html
+          AWS_REGION: 'eu-central-1'
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_KEY: ${{ secrets.S3_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
