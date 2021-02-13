@@ -20,7 +20,7 @@ PubSubClient mqttClient(wifiClient);
 String clientId;
 
 const char DRAW_TOPIC[] = "lieblingswelt/draw";
-const char CONNECT_TOPIC[] = "lieblingswelt/draw/connect";
+const char  CONNECT_TOPIC[] = "lieblingswelt/draw/connect";
 const char UPDATE_TOPIC[] = "lieblingswelt/draw/update";
 
 uint8_t data[16][16][3] = {0};
@@ -128,6 +128,7 @@ void reconnect() {
       Serial.println("connected");
       mqttClient.subscribe(DRAW_TOPIC);
       mqttClient.subscribe(CONNECT_TOPIC);
+      mqttClient.subscribe(UPDATE_TOPIC);
       sync();
     } else {
       Serial.print("failed, rc=");
