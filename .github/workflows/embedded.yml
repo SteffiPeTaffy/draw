@@ -6,6 +6,7 @@ on:
     paths:
     - 'embedded/**'
     - 'platformio.ini'
+    - '.github/workflows/embedded.yml'
     tags:
     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
