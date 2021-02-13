@@ -3,6 +3,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
+#include <AsyncElegantOTA.h>
 
 #define PIN 4
 
@@ -22,6 +23,8 @@ const char DRAW_TOPIC[] = "lieblingswelt/draw";
 const char CONNECT_TOPIC[] = "lieblingswelt/draw/connect";
 
 uint8_t data[16][16][3] = {0};
+
+AsyncWebServer server(80);
 
 void startWifi() {
   Serial.println("Connecting Wifi");
@@ -54,6 +57,13 @@ void setup() {
   matrix.show();
 
   startWifi();
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Moin! I am LED Art Box.");
+  });
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+  server.begin();
+  Serial.println("HTTP server started");
 
   String clientId = "ESP32Client-";
   clientId += String(random(0xffff), HEX);
@@ -138,6 +148,6 @@ void loop() {
   if (!client.connected()) {
     reconnect();
   }
+  AsyncElegantOTA.loop();
   client.loop();
-
 }
