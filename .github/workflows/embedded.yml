@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
     - 'embedded/**'
+    - 'platformio.ini'
 
 jobs:
   build:
