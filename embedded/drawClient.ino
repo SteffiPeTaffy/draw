@@ -141,7 +141,7 @@ void reconnect() {
 
 void update(byte* message) {
     Serial.printf("update to: %s\n", message);
-    t_httpUpdate_return ret = httpUpdate.update(wifiClient, "https://github.com/SteffiPeTaffy/draw/releases/latest/download/firmware.bin");
+    t_httpUpdate_return ret = httpUpdate.update(wifiClient, "http://github.com/SteffiPeTaffy/draw/releases/latest/download/firmware.bin");
 
     switch (ret) {
       case HTTP_UPDATE_FAILED:
